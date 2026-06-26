@@ -27,7 +27,6 @@ func corsMiddleware() gin.HandlerFunc {
 }
 
 func main() {
-	// pastikan folder uploads tersedia
 	if err := os.MkdirAll("./uploads", os.ModePerm); err != nil {
 		panic("Gagal membuat folder uploads: " + err.Error())
 	}
@@ -35,15 +34,12 @@ func main() {
 	// koneksi & migrasi database
 	config.ConnectDatabase()
 
-	// buat admin default jika belum ada
 	seeders.SeedAdmin()
 
 	r := gin.Default()
 
 	r.Use(corsMiddleware())
 
-	// agar file di folder uploads bisa diakses lewat URL, misal:
-	// http://localhost:8080/uploads/nama-file.jpg
 	r.Static("/uploads", "./uploads")
 
 	r.GET("/", func(c *gin.Context) {

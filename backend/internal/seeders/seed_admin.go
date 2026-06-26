@@ -10,9 +10,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// SeedAdmin creates a default admin account if none exists yet.
-// Email   : admin@example.com (can be changed via ADMIN_EMAIL env)
-// Password: value of ADMIN_PASSWORD in .env
 func SeedAdmin() {
 	var count int64
 	config.DB.Model(&models.Admin{}).Count(&count)
