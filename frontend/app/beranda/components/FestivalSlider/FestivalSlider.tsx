@@ -160,7 +160,7 @@ export default function FestivalSlider({ onSelectFestivalId }: FestivalSliderPro
                 </div>
 
                 {/* Card Bottom: Static View */}
-                <div className="z-20 transition-transform duration-300 group-hover:-translate-y-2">
+                <div className="z-20 transition-all duration-300 group-hover:-translate-y-2 group-hover:opacity-0">
                   <span className="text-xs font-semibold text-white/60">
                     {festival.date}
                   </span>
@@ -170,7 +170,7 @@ export default function FestivalSlider({ onSelectFestivalId }: FestivalSliderPro
                 </div>
 
                 {/* Card Hover Detail Slide Up (Netflix-style) */}
-                <div className="absolute inset-x-8 bottom-8 z-35 opacity-0 translate-y-6 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-3 pointer-events-none">
+                <div className="absolute inset-x-6 bottom-6 z-20 opacity-0 translate-y-6 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex flex-col gap-3 pointer-events-none bg-black/25 backdrop-blur-xl rounded-[2rem] p-4">
                   <p className="text-xs text-stone-200 leading-relaxed line-clamp-3">
                     {festival.shortDesc}
                   </p>

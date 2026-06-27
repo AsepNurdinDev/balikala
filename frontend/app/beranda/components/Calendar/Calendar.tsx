@@ -1,6 +1,5 @@
 "use client";
-
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, BookOpen, Clock } from "lucide-react";
+import Link from "next/link";import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, BookOpen, Clock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { FESTIVALS, Festival } from "../../data/festivals";
 
@@ -347,12 +346,12 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-stone-200/50">
-                  <a
-                    href={`/hari-raya/${activeFestival.id}`}
+                  <Link
+                    href={`/${activeFestival.id}`}
                     className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary hover:bg-[#724D31] text-white px-6 py-4 font-bold text-sm shadow-soft transition-all duration-200 active:scale-98"
                   >
                     Pelajari Selengkapnya
-                  </a>
+                  </Link>
                 </div>
               </div>
             ) : (
