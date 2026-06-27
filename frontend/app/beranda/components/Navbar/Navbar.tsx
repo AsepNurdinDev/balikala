@@ -56,14 +56,7 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/login"
-            className="rounded-xl border-2 border-primary px-5 py-2 font-semibold text-primary hover:bg-primary hover:text-white active:scale-95 transition-all duration-200 shadow-sm text-sm"
-          >
-            Admin
-          </Link>
-        </div>
+        
       </div>
     </header>
   );
