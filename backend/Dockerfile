@@ -3,7 +3,8 @@ FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
-# install dependency dulu biar layer cache efektif
+ENV GOPROXY=https://proxy.golang.org,direct
+
 COPY go.mod go.sum ./
 RUN go mod download
 
@@ -16,15 +17,13 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# sertifikat ssl & timezone (opsional, aman untuk koneksi external)
 RUN apk add --no-cache ca-certificates tzdata
 
 COPY --from=builder /app/server .
-COPY --from=builder /app/.env .
 
 # folder untuk simpan gambar upload
 RUN mkdir -p /app/uploads
 
-EXPOSE 8080
+EXPOSE 8090
 
 CMD ["./server"]

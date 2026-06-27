@@ -1,0 +1,70 @@
+services:
+  # ─────────────────────────────────────────
+  #  MySQL
+  # ─────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: blog_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 281205
+      MYSQL_DATABASE: db_balikala
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p281205"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ─────────────────────────────────────────
+  #  Go Backend API
+  # ─────────────────────────────────────────
+  app:
+    build:
+      context: ./backend       # ← folder backend
+      dockerfile: Dockerfile
+    container_name: blog_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_USER: root
+      DB_PASS: 281205
+      DB_HOST: db              
+      DB_PORT: 3306
+      DB_NAME: db_balikala
+      APP_PORT: 8090
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: 281205
+      JWT_SECRET: du0yaMpw7Bkgi3dmxoGZ6cnkums058EAbYLKmAwr
+    ports:
+      - "8090:8090"
+    volumes:
+      - uploads_data:/app/uploads
+
+  # ─────────────────────────────────────────
+  #  Next.js Frontend
+  # ─────────────────────────────────────────
+  # frontend:
+  #   build:
+  #     context: ./frontend     
+  #     dockerfile: Dockerfile
+  #   container_name: blog_frontend
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - app
+  #   environment:
+  #     # Dipakai browser (client-side fetch)
+  #     NEXT_PUBLIC_API_URL: http://localhost:8090
+  #     # Dipakai server Next.js (SSR/server actions) — pakai nama service Docker
+  #     API_URL: http://app:8090
+  #   ports:
+  #     - "3000:3000"
+
+volumes:
+  mysql_data:
+  uploads_data:

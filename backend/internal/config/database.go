@@ -36,7 +36,6 @@ func ConnectDatabase() {
 		dbName,
 	)
 
-	// koneksi database
 	database, err := gorm.Open(
 		mysql.Open(dsn),
 		&gorm.Config{},
@@ -46,10 +45,11 @@ func ConnectDatabase() {
 		panic("Gagal konek ke database")
 	}
 
-	// migrate
+	// AutoMigrate — termasuk Comment
 	database.AutoMigrate(
 		&models.Post{},
 		&models.Admin{},
+		&models.Comment{},
 	)
 
 	DB = database

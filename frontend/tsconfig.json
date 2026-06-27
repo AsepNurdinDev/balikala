@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "lib/utils/utils.ts", "lib/api/index.ts"  ],
   "exclude": ["node_modules"]
 }
