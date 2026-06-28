@@ -45,6 +45,12 @@ export default function Footer() {
             <Link href="/#calendar-section" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
               Kalender
             </Link>
+            <Link href="/blog" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
+              Blog
+            </Link>
+            <Link href="/admin/login" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
+              Admin Panel
+            </Link>
           </nav>
 
           {/* Socials / Admin Link */}

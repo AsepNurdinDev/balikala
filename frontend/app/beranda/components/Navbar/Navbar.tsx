@@ -93,6 +93,14 @@ export default function Navbar() {
             Kalender
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
           </Link>
+
+          <Link
+            href="/blog"
+            className="font-medium text-stone-600 hover:text-primary transition relative group py-2"
+          >
+            Blog
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
+          </Link>
         </nav>
       </div>
     </header>
