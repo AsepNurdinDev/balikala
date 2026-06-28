@@ -8,6 +8,7 @@ import OgohViewer from "./components/OgohViewer";
 import CaturBrata from "./components/CaturBrata";
 import Gallery from "./components/Gallery";
 import References from "./components/References";
+import CommentSection from "./components/CommentSection";
 import Footer from "../beranda/components/Footer/Footer";
 
 export default function NyepiPage() {
@@ -37,6 +38,9 @@ export default function NyepiPage() {
 
         {/* Section 7: Scientific References */}
         <References />
+
+        {/* Section 8: Ruang Diskusi & Komentar */}
+        <CommentSection />
       </main>
 
       {/* Global BaliKala Footer */}

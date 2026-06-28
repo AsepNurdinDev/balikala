@@ -112,7 +112,7 @@ export default function OgohCanvas({ autoRotate, cameraResetKey }: OgohCanvasPro
         </Suspense>
 
         {/* Scene lighting */}
-        <hemisphereLight skyColor="#ffffff" groundColor="#222222" intensity={0.45} />
+        <hemisphereLight color="#ffffff" groundColor="#222222" intensity={0.45} />
         <ambientLight intensity={0.5} />
 
         {/* Controls */}

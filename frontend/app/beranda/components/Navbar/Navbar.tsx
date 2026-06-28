@@ -2,16 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-const menus = [
-  { title: "Beranda", href: "/" },
-  { title: "Hari Raya", href: "/hari-raya" },
-  { title: "Kalender", href: "/kalender" },
-  { title: "Tentang", href: "/tentang" },
-];
+import { ChevronDown } from "lucide-react";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,11 +21,18 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const hariRayaOptions = [
+    { title: "Nyepi", href: "/nyepi" },
+    { title: "Galungan dan Kuningan", href: "/galunganKuningan" },
+    { title: "Pagerwesi", href: "/pagerwesi" },
+    { title: "Saraswati", href: "/saraswati" },
+  ];
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-white/80 backdrop-blur-md border-b border-stone-200/40 py-4 shadow-soft"
+          ? "bg-white/85 backdrop-blur-md border-b border-stone-200/40 py-4 shadow-soft"
           : "bg-transparent py-6 border-b border-transparent"
       }`}
     >
@@ -44,20 +46,55 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          {menus.map((menu) => (
-            <Link
-              key={menu.title}
-              href={menu.href}
-              className="font-medium text-stone-600 hover:text-primary transition relative group py-2"
-            >
-              {menu.title}
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          ))}
-        </nav>
+          <Link
+            href="/"
+            className="font-medium text-stone-600 hover:text-primary transition relative group py-2"
+          >
+            Beranda
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
+          </Link>
 
-        
+          {/* Hari Raya Dropdown */}
+          <div 
+            className="relative group py-2"
+            onMouseEnter={() => setDropdownOpen(true)}
+            onMouseLeave={() => setDropdownOpen(false)}
+          >
+            <button
+              className="font-medium text-stone-600 hover:text-primary transition flex items-center gap-1 cursor-pointer py-1"
+            >
+              Hari Raya
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""}`} />
+            </button>
+            
+            <div
+              className={`absolute left-0 mt-2 w-56 rounded-2xl bg-white border border-stone-200/60 shadow-lg py-2 transition-all duration-200 origin-top-left z-50 ${
+                dropdownOpen 
+                  ? "opacity-100 scale-100 translate-y-0 visible" 
+                  : "opacity-0 scale-95 -translate-y-2 invisible"
+              }`}
+            >
+              {hariRayaOptions.map((option) => (
+                <Link
+                  key={option.title}
+                  href={option.href}
+                  className="block px-4 py-3 text-sm text-stone-600 hover:text-primary hover:bg-stone-50 transition-colors font-semibold"
+                >
+                  {option.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <Link
+            href="/#calendar-section"
+            className="font-medium text-stone-600 hover:text-primary transition relative group py-2"
+          >
+            Kalender
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
+          </Link>
+        </nav>
       </div>
     </header>
   );
-}
+}

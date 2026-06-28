@@ -1,8 +1,56 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { FESTIVALS, Festival } from "../../data/festivals";
-import { ChevronLeft, ChevronRight, Compass, ArrowUpRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
+
+interface SliderFestival {
+  id: string;
+  name: string;
+  date: string;
+  category: string;
+  shortDesc: string;
+  gradient: string;
+  illustrationType: 'nyepi' | 'galungan' | 'kuningan' | 'saraswati' | 'pagerwesi' | 'pengrupukan';
+}
+
+const SLIDER_FESTIVALS: SliderFestival[] = [
+  {
+    id: "nyepi",
+    name: "Nyepi",
+    date: "18 Maret 2026",
+    category: "Sasih (Sasih Kesanga)",
+    shortDesc: "Hari Penyucian Diri dan Alam Semesta melalui Catur Brata Penyepian.",
+    gradient: "from-stone-850 via-stone-800 to-stone-900",
+    illustrationType: "nyepi"
+  },
+  {
+    id: "galunganKuningan",
+    name: "Galungan & Kuningan",
+    date: "17 - 27 Juni 2026",
+    category: "Pawukon (Dungulan & Kuningan)",
+    shortDesc: "Kemenangan Dharma (Kebaikan) melawan Adharma (Keburukan) dilanjutkan dengan turunnya Leluhur memberikan berkah.",
+    gradient: "from-amber-800 via-amber-600 to-[#C89B3C]",
+    illustrationType: "galungan"
+  },
+  {
+    id: "pagerwesi",
+    name: "Pagerwesi",
+    date: "26 Agustus 2026",
+    category: "Pawukon (Rabu Kliwon Sinta)",
+    shortDesc: "Memagari Diri dengan Benteng Ilmu Pengetahuan dan Keteguhan Iman.",
+    gradient: "from-stone-900 via-rose-950 to-[#A61E2D]",
+    illustrationType: "pagerwesi"
+  },
+  {
+    id: "saraswati",
+    name: "Saraswati",
+    date: "22 Agustus 2026",
+    category: "Pawukon (Sabtu Umanis Watugunung)",
+    shortDesc: "Turunnya Ilmu Pengetahuan Suci dan Penghormatan Dewi Saraswati.",
+    gradient: "from-teal-850 via-emerald-800 to-emerald-600",
+    illustrationType: "saraswati"
+  }
+];
 
 interface FestivalSliderProps {
   onSelectFestivalId: (id: string) => void;
@@ -29,7 +77,11 @@ export default function FestivalSlider({ onSelectFestivalId }: FestivalSliderPro
   };
 
   const handleCardClick = (id: string) => {
-    onSelectFestivalId(id);
+    if (id === "galunganKuningan") {
+      onSelectFestivalId("galungan");
+    } else {
+      onSelectFestivalId(id);
+    }
     const element = document.getElementById("calendar-section");
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
@@ -138,7 +190,7 @@ export default function FestivalSlider({ onSelectFestivalId }: FestivalSliderPro
             onScroll={handleScroll}
             className="flex gap-6 overflow-x-auto scrollbar-hide py-4 px-2 snap-x scroll-smooth"
           >
-            {FESTIVALS.map((festival) => (
+            {SLIDER_FESTIVALS.map((festival) => (
               <div
                 key={festival.id}
                 onClick={() => handleCardClick(festival.id)}

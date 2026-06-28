@@ -30,14 +30,20 @@ export default function Footer() {
             <Link href="/" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
               Beranda
             </Link>
-            <Link href="/hari-raya" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
-              Hari Raya
+            <Link href="/nyepi" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
+              Nyepi
             </Link>
-            <Link href="/kalender" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
+            <Link href="/galunganKuningan" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
+              Galungan & Kuningan
+            </Link>
+            <Link href="/pagerwesi" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
+              Pagerwesi
+            </Link>
+            <Link href="/saraswati" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
+              Saraswati
+            </Link>
+            <Link href="/#calendar-section" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
               Kalender
-            </Link>
-            <Link href="/tentang" className="text-xs font-semibold text-stone-500 hover:text-primary transition">
-              Tentang
             </Link>
           </nav>
 
