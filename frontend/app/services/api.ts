@@ -1,8 +1,12 @@
 // API Service for BaliKala Blog
 // Based on API Contract source of truth
 
-export const API_BASE_URL = "http://localhost:8090";
-export const UPLOADS_BASE_URL = "http://localhost:8090/uploads";
+// Diambil dari environment variable agar bisa diatur berbeda
+// antara development lokal dan deployment Docker, tanpa perlu rebuild kode.
+// Lihat file .env.example untuk detail konfigurasi.
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8090";
+export const UPLOADS_BASE_URL = `${API_BASE_URL}/uploads`;
 
 // Data Models
 export interface Post {

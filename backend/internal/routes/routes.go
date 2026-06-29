@@ -17,13 +17,20 @@ func SetupRoutes(r *gin.Engine) {
 		api.GET("/posts", controllers.FindPost)
 		api.GET("/posts/:id", controllers.FindPostById)
 
-		// Posts - protected (need Bearer token)
+		// Comments - public (tidak perlu login)
+		api.GET("/posts/:id/comments", controllers.GetCommentsByPost)
+		api.POST("/posts/:id/comments", controllers.StoreComment)
+
+		// Posts & Comments - protected (need Bearer token)
 		protected := api.Group("/")
 		protected.Use(middlewares.AuthMiddleware())
 		{
 			protected.POST("/posts", controllers.StorePost)
 			protected.PUT("/posts/:id", controllers.UpdatePost)
 			protected.DELETE("/posts/:id", controllers.DeletePost)
+
+			// Admin bisa hapus komentar
+			protected.DELETE("/comments/:id", controllers.DeleteComment)
 		}
 	}
 }
