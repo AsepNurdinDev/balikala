@@ -55,7 +55,6 @@ func FindPost(c *gin.Context) {
 func StorePost(c *gin.Context) {
 	var input ValidatePostInput
 
-	// bind form-data
 	if err := c.ShouldBind(&input); err != nil {
 		var ve validator.ValidationErrors
 
@@ -77,7 +76,6 @@ func StorePost(c *gin.Context) {
 		}
 	}
 
-	// ambil file image
 	file, err := c.FormFile("image")
 
 	var fileName string
@@ -85,7 +83,6 @@ func StorePost(c *gin.Context) {
 	if err == nil {
 		fileName = file.Filename
 
-		// simpan file ke folder uploads
 		err = c.SaveUploadedFile(file, "./uploads/"+fileName)
 
 		if err != nil {
