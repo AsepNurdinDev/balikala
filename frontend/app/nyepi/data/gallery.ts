@@ -10,7 +10,7 @@ export interface GalleryItem {
 const gallery: GalleryItem[] = [
   {
     id: 1,
-    src: "https://images.unsplash.com/photo-1604999333679-b86d54738315?q=80&w=800",
+    src: "/pawai_gallery.jpg",
     alt: "Pawai Ogoh-ogoh menjelang Nyepi",
     title: "Kemeriahan Pawai Ogoh-Ogoh",
     category: "Pengrupukan",
@@ -18,15 +18,15 @@ const gallery: GalleryItem[] = [
   },
   {
     id: 2,
-    src: "https://images.unsplash.com/photo-1542044896530-05d85be9b11a?q=80&w=800",
-    alt: "Candi Bentar dan suasana hening Bali",
-    title: "Keheningan Pura Penataran",
+    src: "/nyepi_gallery.jpg",
+    alt: "suasana hening Bali",
+    title: "Keheningan jalan raya",
     category: "Nyepi",
-    description: "Gerbang pura yang megah berdiri di tengah keheningan pulau Bali saat seluruh aktivitas dihentikan total selama 24 jam.",
+    description: "dua pecalang sedang memeriksa jalan selama seluruh aktivitas dihentikan total selama 24 jam.",
   },
   {
     id: 3,
-    src: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=800",
+    src: "/melukat.jpg",
     alt: "Upacara Melukat penyucian diri",
     title: "Melukat: Penyucian Diri",
     category: "Ritual",
@@ -34,7 +34,7 @@ const gallery: GalleryItem[] = [
   },
   {
     id: 4,
-    src: "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=800",
+    src: "/sembahyang.jpg",
     alt: "Umat Hindu bersembahyang",
     title: "Persembahyangan Khusyuk",
     category: "Ritual",
@@ -42,7 +42,7 @@ const gallery: GalleryItem[] = [
   },
   {
     id: 5,
-    src: "https://images.unsplash.com/photo-1577717900162-27b1fa7b3225?q=80&w=800",
+    src: "/canang.jpg",
     alt: "Canang Sari sebagai persembahan",
     title: "Canang Sari & Wewangian",
     category: "Simbol",
@@ -50,7 +50,7 @@ const gallery: GalleryItem[] = [
   },
   {
     id: 6,
-    src: "https://images.unsplash.com/photo-1518548419070-ad8e3b54822c?q=80&w=800",
+    src: "/ngembak_geni.avif",
     alt: "Ngembak Geni silaturahmi",
     title: "Dharma Shanti Ngembak Geni",
     category: "Ngembak Geni",

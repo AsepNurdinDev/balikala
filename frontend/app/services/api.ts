@@ -37,6 +37,21 @@ export interface ApiError {
   errors?: ValidationError[];
 }
 
+export interface Festival {
+  id: string;
+  name: string;
+  date: string;
+  dateISO: string;
+  formattedDate: string;
+  category: string;
+  shortDesc: string;
+  description: string;
+  rituals: string[];
+  color: string;
+  gradient: string;
+  illustrationType: string;
+}
+
 // Cookie Helpers
 export const getCookie = (name: string): string | null => {
   if (typeof window === "undefined") return null;
@@ -295,3 +310,73 @@ export async function deleteComment(commentId: number): Promise<boolean> {
   const data = await res.json();
   return !!data.success;
 }
+
+// FESTIVAL-001: Get Festivals by Year
+export async function getFestivals(year?: number): Promise<Festival[]> {
+  const query = year ? `?year=${year}` : "";
+  const res = await apiFetch(`/api/festivals${query}`);
+
+  if (!res.ok) {
+    const errorMessage = await parseApiError(res);
+    throw new Error(errorMessage);
+  }
+
+  const data = await res.json();
+  return data.data || [];
+}
+
+// Daftar slug dan label hari raya
+export const FESTIVAL_SLUGS = [
+  { slug: "saraswati", label: "Saraswati" },
+  { slug: "nyepi", label: "Nyepi" },
+  { slug: "pagerwesi", label: "Pagerwesi" },
+  { slug: "galungan-kuningan", label: "Galungan & Kuningan" },
+] as const;
+
+export type FestivalSlug = (typeof FESTIVAL_SLUGS)[number]["slug"];
+
+// FESTIVAL-COMMENT-001: Get Post ID for a festival (used to bind comments)
+export async function getFestivalPostId(slug: FestivalSlug): Promise<number> {
+  const res = await apiFetch(`/api/festival-posts/${slug}`);
+
+  if (!res.ok) {
+    const errorMessage = await parseApiError(res);
+    throw new Error(errorMessage);
+  }
+
+  const data = await res.json();
+  return data.data.id as number;
+}
+
+// FESTIVAL-COMMENT-002: Get all festival comments for admin panel
+// Returns comments grouped with festival label for display
+export interface CommentWithFestivalLabel extends Comment {
+  festival_label: string;
+  festival_slug: string;
+}
+
+export async function getAllFestivalComments(): Promise<CommentWithFestivalLabel[]> {
+  const results: CommentWithFestivalLabel[] = [];
+
+  await Promise.allSettled(
+    FESTIVAL_SLUGS.map(async ({ slug, label }) => {
+      try {
+        const postId = await getFestivalPostId(slug);
+        const comments = await getCommentsByPost(postId);
+        const labeled = comments.map((c) => ({
+          ...c,
+          festival_label: label,
+          festival_slug: slug,
+        }));
+        results.push(...labeled);
+      } catch {
+        // Abaikan jika festival post belum tersedia
+      }
+    })
+  );
+
+  return results.sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+}
+

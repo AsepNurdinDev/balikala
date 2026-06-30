@@ -40,6 +40,7 @@ func main() {
 	config.ConnectDatabase()
 
 	seeders.SeedAdmin()
+	seeders.SeedFestivalPosts()
 
 	r := gin.Default()
 

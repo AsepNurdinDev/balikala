@@ -36,6 +36,11 @@ export default function SearchBar({ onSelectFestival }: SearchBarProps) {
     if (onSelectFestival) {
       onSelectFestival(festivalId);
     }
+    // Scroll to calendar smoothly
+    const element = document.getElementById("calendar-section");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (

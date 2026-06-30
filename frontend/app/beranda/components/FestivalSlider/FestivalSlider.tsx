@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
 
@@ -17,7 +18,7 @@ const SLIDER_FESTIVALS: SliderFestival[] = [
   {
     id: "nyepi",
     name: "Nyepi",
-    date: "18 Maret 2026",
+    date: "19 Maret 2026",
     category: "Sasih (Sasih Kesanga)",
     shortDesc: "Hari Penyucian Diri dan Alam Semesta melalui Catur Brata Penyepian.",
     gradient: "from-stone-850 via-stone-800 to-stone-900",
@@ -35,7 +36,7 @@ const SLIDER_FESTIVALS: SliderFestival[] = [
   {
     id: "pagerwesi",
     name: "Pagerwesi",
-    date: "26 Agustus 2026",
+    date: "8 April & 4 November 2026",
     category: "Pawukon (Rabu Kliwon Sinta)",
     shortDesc: "Memagari Diri dengan Benteng Ilmu Pengetahuan dan Keteguhan Iman.",
     gradient: "from-stone-900 via-rose-950 to-[#A61E2D]",
@@ -44,7 +45,7 @@ const SLIDER_FESTIVALS: SliderFestival[] = [
   {
     id: "saraswati",
     name: "Saraswati",
-    date: "22 Agustus 2026",
+    date: "4 April & 31 Oktober 2026",
     category: "Pawukon (Sabtu Umanis Watugunung)",
     shortDesc: "Turunnya Ilmu Pengetahuan Suci dan Penghormatan Dewi Saraswati.",
     gradient: "from-teal-850 via-emerald-800 to-emerald-600",
@@ -57,6 +58,7 @@ interface FestivalSliderProps {
 }
 
 export default function FestivalSlider({ onSelectFestivalId }: FestivalSliderProps) {
+  const router = useRouter();
   const sliderRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
 
@@ -77,15 +79,7 @@ export default function FestivalSlider({ onSelectFestivalId }: FestivalSliderPro
   };
 
   const handleCardClick = (id: string) => {
-    if (id === "galunganKuningan") {
-      onSelectFestivalId("galungan");
-    } else {
-      onSelectFestivalId(id);
-    }
-    const element = document.getElementById("calendar-section");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    router.push(`/${id}`);
   };
 
   // Render miniature SVGs for cards

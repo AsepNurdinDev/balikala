@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, BookOpen, Clock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { FESTIVALS, Festival } from "../../data/festivals";
+import { fetchFestivals } from "./Calendar.service";
+import type { Festival } from "../../../services/api";
 
 interface CalendarProps {
   selectedFestivalId: string | null;
@@ -14,36 +15,58 @@ const MONTH_NAMES = [
 ];
 
 const DAYS_OF_WEEK = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
+const MIN_YEAR = 2026;
+const MAX_YEAR = 2027;
+
+const clampYear = (year: number) => Math.min(Math.max(year, MIN_YEAR), MAX_YEAR);
 
 export default function Calendar({ selectedFestivalId, onSelectFestivalId }: CalendarProps) {
-  // We default to Juni 2026 (since current local time is 2026 and June contains Galungan/Kuningan)
-  const [currentMonth, setCurrentMonth] = useState(5); // 0-indexed (June)
-  const [currentYear, setCurrentYear] = useState(2026);
+  const now = new Date();
+  const initialYear = clampYear(now.getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(initialYear === now.getFullYear() ? now.getMonth() : 0);
+  const [currentYear, setCurrentYear] = useState(initialYear);
+  const [festivals, setFestivals] = useState<Festival[]>([]);
   const [hoveredFestival, setHoveredFestival] = useState<Festival | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
 
-  // Sync viewed month when selectedFestivalId changes from external components (like SearchBar or Carousel)
-  useEffect(() => {
-    if (selectedFestivalId) {
-      const festival = FESTIVALS.find(f => f.id === selectedFestivalId);
-      if (festival) {
-        // Map festivals to their respective months in 2026
-        if (festival.id === "nyepi" || festival.id === "pengrupukan") {
-          setCurrentMonth(2); // Maret
-          setCurrentYear(2026);
-        } else if (festival.id === "galungan" || festival.id === "kuningan") {
-          setCurrentMonth(5); // Juni
-          setCurrentYear(2026);
-        } else if (festival.id === "saraswati" || festival.id === "pagerwesi") {
-          setCurrentMonth(7); // Agustus
-          setCurrentYear(2026);
-        }
-      }
-    }
-  }, [selectedFestivalId]);
+  const parseISODate = (dateISO: string) => {
+    const parts = dateISO.split("-").map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  };
 
-  const activeFestival = FESTIVALS.find(f => f.id === selectedFestivalId) || null;
+  useEffect(() => {
+    const loadFestivals = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchFestivals(currentYear);
+        setFestivals(data);
+      } catch (err) {
+        setError("Gagal memuat data kalender. Coba muat ulang.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFestivals();
+  }, [currentYear]);
+
+  useEffect(() => {
+    if (!selectedFestivalId || festivals.length === 0) return;
+
+    const festival = festivals.find(f => f.id === selectedFestivalId || f.id.startsWith(selectedFestivalId + "-"));
+    if (festival) {
+      const festivalDate = parseISODate(festival.dateISO);
+      setCurrentMonth(festivalDate.getMonth());
+      setCurrentYear(festivalDate.getFullYear());
+    }
+  }, [selectedFestivalId, festivals]);
+
+  const activeFestival = festivals.find(f => f.id === selectedFestivalId) || 
+    (selectedFestivalId ? festivals.find(f => f.id.startsWith(selectedFestivalId + "-")) : null) || null;
 
   // Calendar Helper functions
   const getDaysInMonth = (month: number, year: number) => {
@@ -56,19 +79,19 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
   };
 
   const getFestivalForDate = (day: number, month: number, year: number): Festival | undefined => {
-    return FESTIVALS.find(f => {
-      if (f.id === "nyepi" && day === 18 && month === 2 && year === 2026) return true;
-      if (f.id === "pengrupukan" && day === 17 && month === 2 && year === 2026) return true;
-      if (f.id === "galungan" && day === 17 && month === 5 && year === 2026) return true;
-      if (f.id === "kuningan" && day === 27 && month === 5 && year === 2026) return true;
-      if (f.id === "saraswati" && day === 22 && month === 7 && year === 2026) return true;
-      if (f.id === "pagerwesi" && day === 26 && month === 7 && year === 2026) return true;
-      return false;
+    return festivals.find(f => {
+      const festivalDate = parseISODate(f.dateISO);
+      return (
+        festivalDate.getFullYear() === year &&
+        festivalDate.getMonth() === month &&
+        festivalDate.getDate() === day
+      );
     });
   };
 
-  // Navigations
   const handlePrevMonth = () => {
+    // Jangan izinkan mundur sebelum Januari 2026
+    if (currentYear === MIN_YEAR && currentMonth === 0) return;
     if (currentMonth === 0) {
       setCurrentMonth(11);
       setCurrentYear(prev => prev - 1);
@@ -78,6 +101,8 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
   };
 
   const handleNextMonth = () => {
+    // Jangan izinkan maju sesudah Desember 2027
+    if (currentYear === MAX_YEAR && currentMonth === 11) return;
     if (currentMonth === 11) {
       setCurrentMonth(0);
       setCurrentYear(prev => prev + 1);
@@ -85,6 +110,9 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
       setCurrentMonth(prev => prev + 1);
     }
   };
+
+  const isPrevDisabled = currentYear === MIN_YEAR && currentMonth === 0;
+  const isNextDisabled = currentYear === MAX_YEAR && currentMonth === 11;
 
   // Render Days Grid
   const daysInMonth = getDaysInMonth(currentMonth, currentYear);
@@ -128,7 +156,8 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
 
   // Color Mapping for Calendar Badges
   const getFestivalStyles = (festival: Festival) => {
-    switch (festival.id) {
+    const baseId = festival.id.split("-")[0];
+    switch (baseId) {
       case "nyepi":
         return {
           bg: "bg-primary/10 text-primary border border-primary/20",
@@ -178,7 +207,7 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
           <div ref={calendarRef} className="lg:col-span-7 flex flex-col relative bg-white border border-stone-200/60 rounded-3xl p-6 shadow-soft">
             
             {/* Calendar Header Controls */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <span className="p-2.5 bg-primary/5 text-primary rounded-xl">
                   <CalendarIcon size={20} />
@@ -188,29 +217,55 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
                 </h3>
               </div>
               
+              {/* Year Tab Switcher — hanya 2026 & 2027 */}
+              <div className="flex items-center gap-1 p-1 bg-stone-100 rounded-xl border border-stone-200/60">
+                {[MIN_YEAR, MAX_YEAR].map(yr => (
+                  <button
+                    key={yr}
+                    onClick={() => {
+                      setCurrentYear(yr);
+                      setCurrentMonth(yr === now.getFullYear() ? now.getMonth() : 0);
+                    }}
+                    className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 ${
+                      currentYear === yr
+                        ? "bg-white text-primary shadow-soft border border-stone-200/60"
+                        : "text-stone-500 hover:text-stone-700"
+                    }`}
+                  >
+                    {yr}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Month Navigation Row */}
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
                 <button
                   onClick={handlePrevMonth}
-                  className="p-2 rounded-xl border border-stone-200 hover:bg-stone-50 active:scale-95 transition-all text-stone-600"
+                  disabled={isPrevDisabled}
+                  className={`p-2 rounded-xl border border-stone-200 active:scale-95 transition-all text-stone-600 ${isPrevDisabled ? "cursor-not-allowed opacity-40" : "hover:bg-stone-50"}`}
                 >
                   <ChevronLeft size={18} />
                 </button>
                 <button
-                  onClick={() => {
-                    setCurrentMonth(5); // Reset to June 2026
-                    setCurrentYear(2026);
-                  }}
-                  className="px-4 py-2 rounded-xl border border-stone-200 hover:bg-stone-50 active:scale-95 transition-all text-xs font-bold text-stone-600"
-                >
-                  Hari Ini
-                </button>
-                <button
                   onClick={handleNextMonth}
-                  className="p-2 rounded-xl border border-stone-200 hover:bg-stone-50 active:scale-95 transition-all text-stone-600"
+                  disabled={isNextDisabled}
+                  className={`p-2 rounded-xl border border-stone-200 active:scale-95 transition-all text-stone-600 ${isNextDisabled ? "cursor-not-allowed opacity-40" : "hover:bg-stone-50"}`}
                 >
                   <ChevronRight size={18} />
                 </button>
               </div>
+              <button
+                onClick={() => {
+                  const todayYear = clampYear(now.getFullYear());
+                  setCurrentMonth(todayYear === now.getFullYear() ? now.getMonth() : 0);
+                  setCurrentYear(todayYear);
+                }}
+                className="px-4 py-2 rounded-xl border border-stone-200 hover:bg-stone-50 active:scale-95 transition-all text-xs font-bold text-stone-600"
+              >
+                Hari Ini
+              </button>
             </div>
 
             {/* Days of Week Row */}
@@ -229,49 +284,62 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
 
             {/* Monthly Calendar Grid Cells */}
             <div className="grid grid-cols-7 gap-2 flex-1">
-              {gridCells.map((cell, index) => {
-                const festival = getFestivalForDate(cell.day, cell.month, cell.year);
-                const isSelected = festival && selectedFestivalId === festival.id;
-                const fStyles = festival ? getFestivalStyles(festival) : null;
+              {loading ? (
+                <div className="col-span-7 py-20 text-center text-sm text-stone-500">
+                  Memuat kalender...
+                </div>
+              ) : error ? (
+                <div className="col-span-7 py-20 text-center text-sm text-red-600">
+                  {error}
+                </div>
+              ) : (
+                gridCells.map((cell, index) => {
+                  const festival = getFestivalForDate(cell.day, cell.month, cell.year);
+                  const isSelected = festival && (
+                    selectedFestivalId === festival.id || 
+                    (selectedFestivalId && !selectedFestivalId.includes("-") && festival.id.startsWith(selectedFestivalId + "-"))
+                  );
+                  const fStyles = festival ? getFestivalStyles(festival) : null;
 
-                return (
-                  <div
-                    key={index}
-                    onClick={() => festival && onSelectFestivalId(festival.id)}
-                    onMouseMove={handleMouseMove}
-                    onMouseEnter={() => festival && setHoveredFestival(festival)}
-                    onMouseLeave={() => setHoveredFestival(null)}
-                    className={`relative min-h-[75px] md:min-h-[95px] p-2 rounded-2xl border transition-all duration-300 flex flex-col justify-between select-none ${
-                      cell.isPadding 
-                        ? "border-stone-100 bg-stone-50/20 text-stone-300 pointer-events-none" 
-                        : "border-stone-100 hover:border-primary/20 bg-white text-stone-700"
-                    } ${
-                      festival ? "cursor-pointer" : "pointer-events-none"
-                    } ${
-                      isSelected ? "ring-2 ring-primary border-transparent bg-primary/[0.02]" : ""
-                    }`}
-                  >
-                    {/* Day Number */}
-                    <span 
-                      className={`text-sm font-bold ${
-                        cell.isPadding ? "text-stone-300" : "text-stone-700"
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => festival && onSelectFestivalId(festival.id)}
+                      onMouseMove={handleMouseMove}
+                      onMouseEnter={() => festival && setHoveredFestival(festival)}
+                      onMouseLeave={() => setHoveredFestival(null)}
+                      className={`relative min-h-[75px] md:min-h-[95px] p-2 rounded-2xl border transition-all duration-300 flex flex-col justify-between select-none ${
+                        cell.isPadding 
+                          ? "border-stone-100 bg-stone-50/20 text-stone-300 pointer-events-none" 
+                          : "border-stone-100 hover:border-primary/20 bg-white text-stone-700"
                       } ${
-                        festival ? "text-primary-800" : ""
+                        festival ? "cursor-pointer" : "pointer-events-none"
+                      } ${
+                        isSelected ? "ring-2 ring-primary border-transparent bg-primary/[0.02]" : ""
                       }`}
                     >
-                      {cell.day}
-                    </span>
+                      {/* Day Number */}
+                      <span 
+                        className={`text-sm font-bold ${
+                          cell.isPadding ? "text-stone-300" : "text-stone-700"
+                        } ${
+                          festival ? "text-primary-800" : ""
+                        }`}
+                      >
+                        {cell.day}
+                      </span>
 
-                    {/* Festival Indicator Badge/Text (Google Calendar style) */}
-                    {festival && fStyles && (
-                      <div className={`mt-auto px-2 py-1 rounded-lg text-[9px] md:text-[10px] font-extrabold truncate w-full flex items-center gap-1.5 transition-colors ${fStyles.bg} ${fStyles.bgHover}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${fStyles.dot}`} />
-                        <span className="truncate">{festival.name}</span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                      {/* Festival Indicator Badge/Text (Google Calendar style) */}
+                      {festival && fStyles && (
+                        <div className={`mt-auto px-2 py-1 rounded-lg text-[9px] md:text-[10px] font-extrabold truncate w-full flex items-center gap-1.5 transition-colors ${fStyles.bg} ${fStyles.bgHover}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${fStyles.dot}`} />
+                          <span className="truncate">{festival.name}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
 
             {/* Floating Tooltip Hover */}
@@ -348,9 +416,9 @@ export default function Calendar({ selectedFestivalId, onSelectFestivalId }: Cal
                 <div className="mt-8 pt-6 border-t border-stone-200/50">
                   <Link
                     href={
-                      activeFestival.id === "galungan" || activeFestival.id === "kuningan"
+                      activeFestival.id.startsWith("galungan") || activeFestival.id.startsWith("kuningan")
                         ? "/galunganKuningan"
-                        : `/${activeFestival.id}`
+                        : `/${activeFestival.id.split("-")[0]}`
                     }
                     className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary hover:bg-[#724D31] text-white px-6 py-4 font-bold text-sm shadow-soft transition-all duration-200 active:scale-98"
                   >
