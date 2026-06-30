@@ -1,0 +1,36 @@
+# ==========================
+# Environment
+# ==========================
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+.env
+.env.*
+
+# Jangan abaikan contoh env
+!.env.example
+
+# ==========================
+# Node.js
+# ==========================
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+
+# ==========================
+# Logs
+# ==========================
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# ==========================
+# OS & Editor
+# ==========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
