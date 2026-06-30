@@ -1,0 +1,187 @@
+{
+  "info": {
+    "name": "Blog API (Go + Gin)",
+    "_postman_id": "b1e1a2a0-1234-4abc-9def-blogapi000001",
+    "description": "Collection untuk test API Blog: login admin, CRUD post (create pakai form-data + upload image), dll.\n\nCara pakai:\n1. Import collection ini ke Postman.\n2. Jalankan request 'Login Admin' dulu -> token otomatis tersimpan ke variable {{token}} (lewat script di tab Tests).\n3. Lanjut jalankan request lain, header Authorization sudah otomatis pakai {{token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8090" },
+    { "key": "token", "value": "" },
+    { "key": "post_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.token) {",
+                  "        pm.collectionVariables.set('token', data.token);",
+                  "        console.log('Token tersimpan:', data.token);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"281205\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Login admin default. Email & password sesuai ADMIN_EMAIL & ADMIN_PASSWORD di .env / docker-compose.yml.\nToken hasil login otomatis disimpan ke variable {{token}}."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Get All Posts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Ambil semua post. Tidak perlu token."
+          }
+        },
+        {
+          "name": "Search Posts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/posts?search=hello",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"],
+              "query": [
+                { "key": "search", "value": "hello" }
+              ]
+            },
+            "description": "Cari post berdasarkan title/content. Ganti value 'hello' sesuai keyword yang mau dicari."
+          }
+        },
+        {
+          "name": "Get Post By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}"]
+            },
+            "description": "Ambil detail 1 post berdasarkan id. Tidak perlu token."
+          }
+        },
+        {
+          "name": "Create Post",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    if (data.data && data.data.id) {",
+                  "        pm.collectionVariables.set('post_id', data.data.id);",
+                  "        console.log('post_id tersimpan:', data.data.id);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Judul Post Pertama", "type": "text" },
+                { "key": "content", "value": "Ini isi konten post pertama untuk testing.", "type": "text" },
+                { "key": "image", "type": "file", "src": "" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Buat post baru. Wajib login dulu (butuh Bearer token).\nField 'image' opsional, kalau diisi pilih file gambar dari komputer (klik kolom 'src' di Postman -> Select File).\nId post hasil create otomatis disimpan ke variable {{post_id}} untuk dipakai di request Update/Delete/Get By Id."
+          }
+        },
+        {
+          "name": "Update Post",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Judul Post Sudah Diupdate", "type": "text" },
+                { "key": "content", "value": "Konten sudah diubah lewat request update.", "type": "text" },
+                { "key": "image", "type": "file", "src": "" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}"]
+            },
+            "description": "Update post berdasarkan id ({{post_id}}). Wajib login (Bearer token). Field 'image' opsional."
+          }
+        },
+        {
+          "name": "Delete Post",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/posts/{{post_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts", "{{post_id}}"]
+            },
+            "description": "Hapus post berdasarkan id ({{post_id}}). Wajib login (Bearer token)."
+          }
+        }
+      ]
+    }
+  ]
+}
